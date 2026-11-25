@@ -27,8 +27,8 @@ using System.Windows.Media.Imaging;
 [assembly: AssemblyCompany("Nilly graphics (Sotiris Christos) — https://nillygraphics.com/")]
 [assembly: AssemblyProduct("NillyBatch Pro")]
 [assembly: AssemblyCopyright("Copyright (c) 2026 Nilly graphics (Sotiris Christos)")]
-[assembly: AssemblyVersion("1.0.1.0")]
-[assembly: AssemblyFileVersion("1.0.1.0")]
+[assembly: AssemblyVersion("1.1.0.0")]
+[assembly: AssemblyFileVersion("1.1.0.0")]
 
 namespace NillyBatchPro
 {
@@ -760,7 +760,7 @@ namespace NillyBatchPro
         private TextBox _txtCustomW, _txtCustomH, _txtScalePct, _txtSuffix, _txtWmText;
         private CheckBox _chkExifRot, _chkSeoName, _chkOverwrite, _chkWatermark;
         private ProgressBar _progBar;
-        private StudioButton _btnRunBatch, _btnCancelBatch, _btnOpenOut;
+        private StudioButton _btnRunBatch, _btnCancelBatch, _btnOpenOut, _btnZipOut;
         private volatile bool _batchRunning = false;
         private volatile bool _batchCancel = false;
         private string _lastOutDir = "";
@@ -793,6 +793,7 @@ namespace NillyBatchPro
             catch { }
 
             BuildUI();
+            if (!ReadSuiteDark(true)) _theme = BatchTheme.Win11Light();
             ApplyTheme(_theme);
             SwitchTab(0);
 
@@ -994,14 +995,32 @@ namespace NillyBatchPro
             _btnCancelBatch.Enabled = false;
             right.Controls.Add(_btnCancelBatch); y += 44;
 
-            _btnOpenOut = MakeBtn("Open Output Folder", 294, 32, PillKind.Normal, delegate
+            _btnOpenOut = MakeBtn("Open Output Folder", 188, 32, PillKind.Normal, delegate
             {
                 if (!string.IsNullOrEmpty(_lastOutDir) && Directory.Exists(_lastOutDir))
-                    try { Process.Start("explorer.exe", "\"" + _lastOutDir + "\""); } catch { }
+                    OpenFolderSmart(_lastOutDir);
             });
             _btnOpenOut.Location = new Point(10, y);
             _btnOpenOut.Enabled = false;
             right.Controls.Add(_btnOpenOut);
+
+            _btnZipOut = MakeBtn("🗜 ZIP Folder", 100, 32, PillKind.Subtle, delegate
+            {
+                if (string.IsNullOrEmpty(_lastOutDir) || !Directory.Exists(_lastOutDir)) return;
+                string zipExe = FindSiblingExe("NillyZipPro", "NillyZipPro.exe");
+                if (zipExe != null)
+                {
+                    try
+                    {
+                        Process.Start(new ProcessStartInfo(zipExe, "--compress \"" + _lastOutDir + "\"") { WorkingDirectory = Path.GetDirectoryName(zipExe), UseShellExecute = true });
+                        _lblImgStats.Text = "🗜 Δημιουργήθηκε ZIP με NillyZip Pro!";
+                    }
+                    catch { }
+                }
+            });
+            _btnZipOut.Location = new Point(204, y);
+            _btnZipOut.Enabled = false;
+            right.Controls.Add(_btnZipOut);
 
             // Left File ListView
             _lvImg = new ListView();
@@ -1354,7 +1373,9 @@ namespace NillyBatchPro
                         _btnRunBatch.Enabled = true;
                         _btnCancelBatch.Enabled = false;
                         _lastOutDir = outDir;
-                        _btnOpenOut.Enabled = !string.IsNullOrEmpty(outDir) && Directory.Exists(outDir);
+                        bool hasOut = !string.IsNullOrEmpty(outDir) && Directory.Exists(outDir);
+                        _btnOpenOut.Enabled = hasOut;
+                        _btnZipOut.Enabled = hasOut && FindSiblingExe("NillyZipPro", "NillyZipPro.exe") != null;
                         double savedPct = sumOld > 0 ? ((double)(sumOld - sumNew) / sumOld * 100.0) : 0;
                         _lblImgStats.Text = string.Format("{0} OK{1} in {2:0.0}s\n{3} → {4} ({5:0.#}% saved)",
                             okCnt, errCnt > 0 ? (", " + errCnt + " err") : "", sw.Elapsed.TotalSeconds,
@@ -1476,6 +1497,49 @@ namespace NillyBatchPro
             _panelRen.Visible = (idx == 1);
             _btnTabImg.IsToggled = (idx == 0); _btnTabImg.Invalidate();
             _btnTabRen.IsToggled = (idx == 1); _btnTabRen.Invalidate();
+        }
+
+        private static bool ReadSuiteDark(bool fallback)
+        {
+            try
+            {
+                string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"NillySuite\suite.theme");
+                if (File.Exists(p))
+                {
+                    string s = File.ReadAllText(p, Encoding.ASCII).Trim();
+                    if (s.Equals("light", StringComparison.OrdinalIgnoreCase)) return false;
+                    if (s.Equals("dark", StringComparison.OrdinalIgnoreCase)) return true;
+                }
+            }
+            catch { }
+            return fallback;
+        }
+
+        private static string FindSiblingExe(string folder, string exeName)
+        {
+            try
+            {
+                string appData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"NillySuite\" + folder + @"\" + exeName);
+                if (File.Exists(appData)) return appData;
+                DirectoryInfo par = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\'));
+                if (par != null)
+                {
+                    string sib = Path.Combine(Path.Combine(par.FullName, folder), exeName);
+                    if (File.Exists(sib)) return sib;
+                }
+            }
+            catch { }
+            return null;
+        }
+
+        private static void OpenFolderSmart(string dir)
+        {
+            string filesExe = FindSiblingExe("NillyFilesPro", "NillyFilesPro.exe");
+            if (filesExe != null)
+            {
+                try { Process.Start(new ProcessStartInfo(filesExe, "\"" + dir + "\"") { WorkingDirectory = Path.GetDirectoryName(filesExe), UseShellExecute = true }); return; } catch { }
+            }
+            try { Process.Start("explorer.exe", "\"" + dir + "\""); } catch { }
         }
 
         public void ApplyTheme(BatchTheme t)
