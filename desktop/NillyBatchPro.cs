@@ -27,8 +27,8 @@ using System.Windows.Media.Imaging;
 [assembly: AssemblyCompany("Nilly graphics (Sotiris Christos) — https://nillygraphics.com/")]
 [assembly: AssemblyProduct("NillyBatch Pro")]
 [assembly: AssemblyCopyright("Copyright (c) 2026 Nilly graphics (Sotiris Christos)")]
-[assembly: AssemblyVersion("1.1.0.0")]
-[assembly: AssemblyFileVersion("1.1.0.0")]
+[assembly: AssemblyVersion("1.2.0.0")]
+[assembly: AssemblyFileVersion("1.2.0.0")]
 
 namespace NillyBatchPro
 {
@@ -754,6 +754,11 @@ namespace NillyBatchPro
         // Image Batch Tab controls
         private ListView _lvImg;
         private List<string> _imgFiles = new List<string>();
+        private int _imgSortCol = 0; private bool _imgSortAsc = true;
+        private int _renSortCol = 0; private bool _renSortAsc = true;
+        private bool _internalDrag = false;
+        private static readonly string[] ImgCols = new string[] { "Image File", "Original", "Output", "Status" };
+        private static readonly string[] RenCols = new string[] { "Original Filename", "New Filename (Live Preview)", "Status" };
         private ComboBox _cmbFmt, _cmbResize, _cmbWmPos;
         private TrackBar _trkQuality, _trkWmOpacity;
         private Label _lblQualityVal, _lblWmOpVal, _lblImgStats;
@@ -800,7 +805,8 @@ namespace NillyBatchPro
             this.HandleCreated += delegate { Native.SetDarkTitleBar(this.Handle, _theme.IsDark); };
             this.DragEnter += delegate(object s, DragEventArgs e)
             {
-                if (e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effect = DragDropEffects.Copy;
+                if (_internalDrag) { e.Effect = DragDropEffects.None; return; }
+                if (e.Data != null && e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effect = DragDropEffects.Copy;
             };
             this.DragDrop += OnDragDropFiles;
             this.KeyDown += delegate(object s, KeyEventArgs e)
@@ -1027,12 +1033,23 @@ namespace NillyBatchPro
             _lvImg.Dock = DockStyle.Fill;
             _lvImg.View = View.Details;
             _lvImg.FullRowSelect = true;
+            _lvImg.AllowDrop = true;
             _lvImg.BorderStyle = BorderStyle.FixedSingle;
             _lvImg.Font = new Font("Segoe UI", 9f);
-            _lvImg.Columns.Add("Image File", 260);
+            _lvImg.Columns.Add("Image File ▲", 260);
             _lvImg.Columns.Add("Original", 82, HorizontalAlignment.Right);
             _lvImg.Columns.Add("Output", 110, HorizontalAlignment.Right);
             _lvImg.Columns.Add("Status", 130);
+            _lvImg.DragEnter += delegate(object s, DragEventArgs e) { if (_internalDrag) { e.Effect = DragDropEffects.None; return; } if (e.Data != null && e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effect = DragDropEffects.Copy; };
+            _lvImg.DragDrop += OnDragDropFiles;
+            _lvImg.ItemDrag += delegate(object s, ItemDragEventArgs e) { if (e.Button == MouseButtons.Left) DragOutBatchFiles(_lvImg, _imgFiles); };
+            _lvImg.ColumnClick += delegate(object s, ColumnClickEventArgs e)
+            {
+                if (_batchRunning) return;
+                if (_imgSortCol == e.Column) _imgSortAsc = !_imgSortAsc;
+                else { _imgSortCol = e.Column; _imgSortAsc = (e.Column != 1); }
+                SortImageQueue();
+            };
             _lvImg.KeyDown += delegate(object s, KeyEventArgs e)
             {
                 if (e.KeyCode == Keys.Delete && !_batchRunning) RemoveSelectedImgItems();
@@ -1147,11 +1164,21 @@ namespace NillyBatchPro
             _lvRen.Dock = DockStyle.Fill;
             _lvRen.View = View.Details;
             _lvRen.FullRowSelect = true;
+            _lvRen.AllowDrop = true;
             _lvRen.BorderStyle = BorderStyle.FixedSingle;
             _lvRen.Font = new Font("Segoe UI", 9f);
-            _lvRen.Columns.Add("Original Filename", 260);
+            _lvRen.Columns.Add("Original Filename ▲", 260);
             _lvRen.Columns.Add("New Filename (Live Preview)", 270);
             _lvRen.Columns.Add("Status", 75);
+            _lvRen.DragEnter += delegate(object s, DragEventArgs e) { if (_internalDrag) { e.Effect = DragDropEffects.None; return; } if (e.Data != null && e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effect = DragDropEffects.Copy; };
+            _lvRen.DragDrop += OnDragDropFiles;
+            _lvRen.ItemDrag += delegate(object s, ItemDragEventArgs e) { if (e.Button == MouseButtons.Left) DragOutBatchFiles(_lvRen, _renFiles); };
+            _lvRen.ColumnClick += delegate(object s, ColumnClickEventArgs e)
+            {
+                if (_renSortCol == e.Column) _renSortAsc = !_renSortAsc;
+                else { _renSortCol = e.Column; _renSortAsc = true; }
+                SortRenameQueue();
+            };
             _lvRen.KeyDown += delegate(object s, KeyEventArgs e)
             {
                 if (e.KeyCode == Keys.Delete) RemoveSelectedRenItems();
@@ -1167,8 +1194,74 @@ namespace NillyBatchPro
         // ====================================================================
         private void OnDragDropFiles(object sender, DragEventArgs e)
         {
+            if (_internalDrag || e.Data == null) return;
             string[] items = e.Data.GetData(DataFormats.FileDrop) as string[];
             if (items != null) AddDroppedPaths(items);
+        }
+
+        private void DragOutBatchFiles(ListView lv, List<string> backing)
+        {
+            if (lv == null || lv.SelectedIndices.Count == 0) return;
+            List<string> paths = new List<string>();
+            for (int i = 0; i < lv.SelectedIndices.Count; i++)
+            {
+                int idx = lv.SelectedIndices[i];
+                if (idx >= 0 && idx < backing.Count && File.Exists(backing[idx])) paths.Add(backing[idx]);
+            }
+            if (paths.Count == 0) return;
+            _internalDrag = true;
+            try { lv.DoDragDrop(new DataObject(DataFormats.FileDrop, paths.ToArray()), DragDropEffects.Copy | DragDropEffects.Link); }
+            catch { }
+            finally { _internalDrag = false; }
+        }
+
+        private void SortImageQueue()
+        {
+            for (int i = 0; i < ImgCols.Length; i++)
+                _lvImg.Columns[i].Text = ImgCols[i] + (i == _imgSortCol ? (_imgSortAsc ? " ▲" : " ▼") : "");
+            if (_imgFiles.Count <= 1) return;
+            int sign = _imgSortAsc ? 1 : -1;
+            Dictionary<string, long> sizes = new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase);
+            if (_imgSortCol == 1)
+            {
+                for (int i = 0; i < _imgFiles.Count; i++)
+                    try { sizes[_imgFiles[i]] = new FileInfo(_imgFiles[i]).Length; } catch { sizes[_imgFiles[i]] = 0; }
+            }
+            _imgFiles.Sort(delegate(string a, string b)
+            {
+                int cmp = (_imgSortCol == 1)
+                    ? sizes[a].CompareTo(sizes[b])
+                    : string.Compare(Path.GetFileName(a), Path.GetFileName(b), StringComparison.OrdinalIgnoreCase);
+                return sign * cmp;
+            });
+            _lvImg.BeginUpdate();
+            _lvImg.Items.Clear();
+            for (int i = 0; i < _imgFiles.Count; i++)
+            {
+                string f = _imgFiles[i];
+                long bytes = 0;
+                try { bytes = new FileInfo(f).Length; } catch { }
+                ListViewItem lvi = new ListViewItem(Path.GetFileName(f));
+                lvi.SubItems.Add(FormatBytes(bytes));
+                lvi.SubItems.Add("-");
+                lvi.SubItems.Add("Ready");
+                lvi.Tag = f;
+                _lvImg.Items.Add(lvi);
+            }
+            _lvImg.EndUpdate();
+        }
+
+        private void SortRenameQueue()
+        {
+            for (int i = 0; i < RenCols.Length; i++)
+                _lvRen.Columns[i].Text = RenCols[i] + (i == _renSortCol ? (_renSortAsc ? " ▲" : " ▼") : "");
+            if (_renFiles.Count <= 1) return;
+            int sign = _renSortAsc ? 1 : -1;
+            _renFiles.Sort(delegate(string a, string b)
+            {
+                return sign * string.Compare(Path.GetFileName(a), Path.GetFileName(b), StringComparison.OrdinalIgnoreCase);
+            });
+            RefreshRenamePreview();
         }
 
         private void AddDroppedPaths(string[] paths)
