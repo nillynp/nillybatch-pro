@@ -27,8 +27,8 @@ using System.Windows.Media.Imaging;
 [assembly: AssemblyCompany("Nilly graphics (Sotiris Christos) — https://nillygraphics.com/")]
 [assembly: AssemblyProduct("NillyBatch Pro")]
 [assembly: AssemblyCopyright("Copyright (c) 2026 Nilly graphics (Sotiris Christos)")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.0.1.0")]
+[assembly: AssemblyFileVersion("1.0.1.0")]
 
 namespace NillyBatchPro
 {
@@ -39,6 +39,22 @@ namespace NillyBatchPro
     {
         [DllImport("user32.dll")]
         public static extern bool SetProcessDPIAware();
+
+        [DllImport("kernel32.dll")]
+        private static extern IntPtr GetCurrentProcess();
+
+        [DllImport("kernel32.dll")]
+        private static extern bool SetProcessWorkingSetSize(IntPtr hProcess, IntPtr minSize, IntPtr maxSize);
+
+        public static void TrimMemory()
+        {
+            try
+            {
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Optimized, false);
+                SetProcessWorkingSetSize(GetCurrentProcess(), (IntPtr)(-1), (IntPtr)(-1));
+            }
+            catch { }
+        }
 
         [DllImport("dwmapi.dll")]
         public static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
@@ -834,6 +850,7 @@ namespace NillyBatchPro
 
             // 2. Bottom Footer
             _lblFooter = new Label();
+            _lblFooter.UseMnemonic = false;
             _lblFooter.Dock = DockStyle.Bottom;
             _lblFooter.Height = 24;
             _lblFooter.TextAlign = ContentAlignment.MiddleCenter;
@@ -1561,7 +1578,9 @@ namespace NillyBatchPro
             if (args != null && args.Length > 0 && args[0] == "--test-smoke")
                 return RunSmokeTest(args.Length > 1 ? args[1] : null);
 
-            Application.Run(new MainForm(args));
+            MainForm mf = new MainForm(args);
+            mf.Shown += delegate { Native.TrimMemory(); };
+            Application.Run(mf);
             return 0;
         }
 
