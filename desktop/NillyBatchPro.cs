@@ -27,8 +27,8 @@ using System.Windows.Media.Imaging;
 [assembly: AssemblyCompany("Nilly graphics (Sotiris Christos) — https://nillygraphics.com/")]
 [assembly: AssemblyProduct("NillyBatch Pro")]
 [assembly: AssemblyCopyright("Copyright (c) 2026 Nilly graphics (Sotiris Christos)")]
-[assembly: AssemblyVersion("1.2.1.0")]
-[assembly: AssemblyFileVersion("1.2.1.0")]
+[assembly: AssemblyVersion("1.2.2.0")]
+[assembly: AssemblyFileVersion("1.2.2.0")]
 
 namespace NillyBatchPro
 {
@@ -85,22 +85,22 @@ namespace NillyBatchPro
         {
             BatchTheme t = new BatchTheme();
             t.IsDark = true;
-            t.WindowBg = Color.FromArgb(32, 32, 32);
-            t.CardBg = Color.FromArgb(42, 42, 42);
-            t.CardBorder = Color.FromArgb(60, 60, 60);
-            t.TextPrimary = Color.FromArgb(245, 245, 245);
-            t.TextMuted = Color.FromArgb(164, 164, 164);
-            t.BtnBg = Color.FromArgb(54, 54, 54);
-            t.BtnHover = Color.FromArgb(66, 66, 66);
-            t.BtnPress = Color.FromArgb(44, 44, 44);
-            t.AccentBg = Color.FromArgb(76, 194, 255);
-            t.AccentHover = Color.FromArgb(64, 178, 238);
-            t.AccentText = Color.Black;
-            t.StudioAmber = Color.FromArgb(253, 151, 31);
-            t.InputBg = Color.FromArgb(28, 28, 28);
+            t.WindowBg = Color.FromArgb(24, 26, 31);
+            t.CardBg = Color.FromArgb(31, 34, 41);
+            t.CardBorder = Color.FromArgb(52, 57, 68);
+            t.TextPrimary = Color.FromArgb(236, 239, 244);
+            t.TextMuted = Color.FromArgb(148, 157, 174);
+            t.BtnBg = Color.FromArgb(39, 43, 52);
+            t.BtnHover = Color.FromArgb(49, 54, 66);
+            t.BtnPress = Color.FromArgb(31, 34, 41);
+            t.AccentBg = Color.FromArgb(252, 150, 31);
+            t.AccentHover = Color.FromArgb(236, 134, 20);
+            t.AccentText = Color.FromArgb(20, 22, 26);
+            t.StudioAmber = Color.FromArgb(252, 150, 31);
+            t.InputBg = Color.FromArgb(28, 30, 36);
             t.OkColor = Color.FromArgb(166, 226, 46);
             t.WarnColor = Color.FromArgb(249, 38, 114);
-            t.ListAltBg = Color.FromArgb(36, 36, 36);
+            t.ListAltBg = Color.FromArgb(28, 30, 36);
             return t;
         }
 
@@ -108,22 +108,22 @@ namespace NillyBatchPro
         {
             BatchTheme t = new BatchTheme();
             t.IsDark = false;
-            t.WindowBg = Color.FromArgb(243, 243, 243);
-            t.CardBg = Color.FromArgb(252, 252, 252);
-            t.CardBorder = Color.FromArgb(218, 218, 218);
-            t.TextPrimary = Color.FromArgb(26, 26, 26);
-            t.TextMuted = Color.FromArgb(100, 100, 100);
+            t.WindowBg = Color.FromArgb(248, 249, 251);
+            t.CardBg = Color.FromArgb(238, 241, 246);
+            t.CardBorder = Color.FromArgb(210, 216, 226);
+            t.TextPrimary = Color.FromArgb(28, 32, 40);
+            t.TextMuted = Color.FromArgb(98, 108, 125);
             t.BtnBg = Color.White;
-            t.BtnHover = Color.FromArgb(240, 240, 240);
-            t.BtnPress = Color.FromArgb(228, 228, 228);
-            t.AccentBg = Color.FromArgb(0, 103, 192);
-            t.AccentHover = Color.FromArgb(22, 118, 202);
+            t.BtnHover = Color.FromArgb(226, 232, 242);
+            t.BtnPress = Color.FromArgb(215, 222, 234);
+            t.AccentBg = Color.FromArgb(224, 118, 12);
+            t.AccentHover = Color.FromArgb(204, 104, 8);
             t.AccentText = Color.White;
-            t.StudioAmber = Color.FromArgb(217, 107, 0);
+            t.StudioAmber = Color.FromArgb(224, 118, 12);
             t.InputBg = Color.White;
-            t.OkColor = Color.FromArgb(18, 128, 36);
-            t.WarnColor = Color.FromArgb(196, 43, 28);
-            t.ListAltBg = Color.FromArgb(247, 247, 249);
+            t.OkColor = Color.FromArgb(62, 145, 32);
+            t.WarnColor = Color.FromArgb(204, 28, 92);
+            t.ListAltBg = Color.FromArgb(243, 245, 249);
             return t;
         }
     }
@@ -832,22 +832,22 @@ namespace NillyBatchPro
             _topBar.Height = 46;
             _topBar.Padding = new Padding(10, 8, 10, 6);
 
-            _btnTabImg = MakeBtn("Image Batch (Ctrl+1)", 142, 30, PillKind.Subtle, delegate { SwitchTab(0); });
+            _btnTabImg = MakeBtn("Εικόνες (Ctrl+1)", 132, 30, PillKind.Subtle, delegate { SwitchTab(0); });
             _btnTabImg.Location = new Point(10, 8);
             _btnTabImg.Font = new Font("Segoe UI", 9f, FontStyle.Bold);
 
-            _btnTabRen = MakeBtn("Batch Rename (Ctrl+2)", 150, 30, PillKind.Subtle, delegate { SwitchTab(1); });
-            _btnTabRen.Location = new Point(158, 8);
+            _btnTabRen = MakeBtn("Μετονομασία (Ctrl+2)", 152, 30, PillKind.Subtle, delegate { SwitchTab(1); });
+            _btnTabRen.Location = new Point(148, 8);
             _btnTabRen.Font = new Font("Segoe UI", 9f, FontStyle.Bold);
 
-            _btnAddFiles = MakeBtn("+ Add Files", 92, 30, PillKind.Normal, delegate { PromptAddFiles(); });
-            _btnAddFiles.Location = new Point(328, 8);
+            _btnAddFiles = MakeBtn("+ Αρχεία", 88, 30, PillKind.Normal, delegate { PromptAddFiles(); });
+            _btnAddFiles.Location = new Point(316, 8);
 
-            _btnAddFolder = MakeBtn("+ Add Folder", 100, 30, PillKind.Normal, delegate { PromptAddFolder(); });
-            _btnAddFolder.Location = new Point(426, 8);
+            _btnAddFolder = MakeBtn("+ Φάκελος", 96, 30, PillKind.Normal, delegate { PromptAddFolder(); });
+            _btnAddFolder.Location = new Point(410, 8);
 
-            _btnClear = MakeBtn("Clear List", 82, 30, PillKind.Danger, delegate { ClearActiveList(); });
-            _btnClear.Location = new Point(532, 8);
+            _btnClear = MakeBtn("Καθαρισμός", 94, 30, PillKind.Danger, delegate { ClearActiveList(); });
+            _btnClear.Location = new Point(512, 8);
 
             _btnTheme = MakeBtn("◐", 36, 30, PillKind.Subtle, delegate { ApplyTheme(_theme.IsDark ? BatchTheme.Win11Light() : BatchTheme.Win11Dark()); });
             _btnTheme.Anchor = AnchorStyles.Top | AnchorStyles.Right;
@@ -991,17 +991,17 @@ namespace NillyBatchPro
             _lblImgStats.Height = 32;
             right.Controls.Add(_lblImgStats); y += 36;
 
-            _btnRunBatch = MakeBtn("Start Image Batch", 190, 38, PillKind.Accent, delegate { StartImageBatch(); });
+            _btnRunBatch = MakeBtn("Εκκίνηση", 190, 38, PillKind.Accent, delegate { StartImageBatch(); });
             _btnRunBatch.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
             _btnRunBatch.Location = new Point(10, y);
             right.Controls.Add(_btnRunBatch);
 
-            _btnCancelBatch = MakeBtn("Stop", 98, 38, PillKind.Danger, delegate { _batchCancel = true; });
+            _btnCancelBatch = MakeBtn("Διακοπή", 98, 38, PillKind.Danger, delegate { _batchCancel = true; });
             _btnCancelBatch.Location = new Point(206, y);
             _btnCancelBatch.Enabled = false;
             right.Controls.Add(_btnCancelBatch); y += 44;
 
-            _btnOpenOut = MakeBtn("Open Output Folder", 188, 32, PillKind.Normal, delegate
+            _btnOpenOut = MakeBtn("Άνοιγμα Φακέλου", 188, 32, PillKind.Normal, delegate
             {
                 if (!string.IsNullOrEmpty(_lastOutDir) && Directory.Exists(_lastOutDir))
                     OpenFolderSmart(_lastOutDir);
@@ -1010,7 +1010,7 @@ namespace NillyBatchPro
             _btnOpenOut.Enabled = false;
             right.Controls.Add(_btnOpenOut);
 
-            _btnZipOut = MakeBtn("🗜 ZIP Folder", 100, 32, PillKind.Subtle, delegate
+            _btnZipOut = MakeBtn("ZIP Φακέλου", 100, 32, PillKind.Subtle, delegate
             {
                 if (string.IsNullOrEmpty(_lastOutDir) || !Directory.Exists(_lastOutDir)) return;
                 string zipExe = FindSiblingExe("NillyZipPro", "NillyZipPro.exe");
@@ -1019,7 +1019,7 @@ namespace NillyBatchPro
                     try
                     {
                         Process.Start(new ProcessStartInfo(zipExe, "--compress \"" + _lastOutDir + "\"") { WorkingDirectory = Path.GetDirectoryName(zipExe), UseShellExecute = true });
-                        _lblImgStats.Text = "🗜 Δημιουργήθηκε ZIP με NillyZip Pro!";
+                        _lblImgStats.Text = "Δημιουργήθηκε ZIP με NillyZip Pro.";
                     }
                     catch { }
                 }
@@ -1034,7 +1034,7 @@ namespace NillyBatchPro
             _lvImg.View = View.Details;
             _lvImg.FullRowSelect = true;
             _lvImg.AllowDrop = true;
-            _lvImg.BorderStyle = BorderStyle.FixedSingle;
+            _lvImg.BorderStyle = BorderStyle.None;
             _lvImg.Font = new Font("Segoe UI", 9f);
             _lvImg.Columns.Add("Image File ▲", 260);
             _lvImg.Columns.Add("Original", 82, HorizontalAlignment.Right);
@@ -1150,12 +1150,12 @@ namespace NillyBatchPro
             _lblRenStats.Height = 28;
             right.Controls.Add(_lblRenStats); y += 32;
 
-            _btnRunRename = MakeBtn("Rename All Files", 294, 38, PillKind.Accent, delegate { ExecuteBatchRename(); });
+            _btnRunRename = MakeBtn("Μετονομασία Όλων", 294, 38, PillKind.Accent, delegate { ExecuteBatchRename(); });
             _btnRunRename.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
             _btnRunRename.Location = new Point(10, y);
             right.Controls.Add(_btnRunRename); y += 44;
 
-            _btnUndoRename = MakeBtn("Undo Last Rename", 294, 32, PillKind.Normal, delegate { UndoLastRename(); });
+            _btnUndoRename = MakeBtn("Αναίρεση Τελευταίας Μετονομασίας", 294, 32, PillKind.Normal, delegate { UndoLastRename(); });
             _btnUndoRename.Location = new Point(10, y);
             _btnUndoRename.Enabled = false;
             right.Controls.Add(_btnUndoRename);
@@ -1165,7 +1165,7 @@ namespace NillyBatchPro
             _lvRen.View = View.Details;
             _lvRen.FullRowSelect = true;
             _lvRen.AllowDrop = true;
-            _lvRen.BorderStyle = BorderStyle.FixedSingle;
+            _lvRen.BorderStyle = BorderStyle.None;
             _lvRen.Font = new Font("Segoe UI", 9f);
             _lvRen.Columns.Add("Original Filename ▲", 260);
             _lvRen.Columns.Add("New Filename (Live Preview)", 270);
