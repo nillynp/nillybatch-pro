@@ -27,8 +27,8 @@ using System.Windows.Media.Imaging;
 [assembly: AssemblyCompany("Nilly graphics (Sotiris Christos) — https://nillygraphics.com/")]
 [assembly: AssemblyProduct("NillyBatch Pro")]
 [assembly: AssemblyCopyright("Copyright (c) 2026 Nilly graphics (Sotiris Christos)")]
-[assembly: AssemblyVersion("1.2.0.0")]
-[assembly: AssemblyFileVersion("1.2.0.0")]
+[assembly: AssemblyVersion("1.2.1.0")]
+[assembly: AssemblyFileVersion("1.2.1.0")]
 
 namespace NillyBatchPro
 {
@@ -849,7 +849,7 @@ namespace NillyBatchPro
             _btnClear = MakeBtn("Clear List", 82, 30, PillKind.Danger, delegate { ClearActiveList(); });
             _btnClear.Location = new Point(532, 8);
 
-            _btnTheme = MakeBtn("☀", 36, 30, PillKind.Subtle, delegate { ApplyTheme(_theme.IsDark ? BatchTheme.Win11Light() : BatchTheme.Win11Dark()); });
+            _btnTheme = MakeBtn("◐", 36, 30, PillKind.Subtle, delegate { ApplyTheme(_theme.IsDark ? BatchTheme.Win11Light() : BatchTheme.Win11Dark()); });
             _btnTheme.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             _btnTheme.Location = new Point(this.ClientSize.Width - 46, 8);
 
@@ -1641,7 +1641,7 @@ namespace NillyBatchPro
             this.BackColor = t.WindowBg;
             this.ForeColor = t.TextPrimary;
             if (this.IsHandleCreated) Native.SetDarkTitleBar(this.Handle, t.IsDark);
-            _btnTheme.Text = t.IsDark ? "☀" : "🌙";
+            _btnTheme.Text = "◐";
             _lblFooter.BackColor = t.WindowBg;
             _lblFooter.ForeColor = t.TextMuted;
             ApplyRecursive(this, t);
